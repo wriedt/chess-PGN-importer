@@ -1,0 +1,185 @@
+<h1>{{#Title}}{{Title}}{{/Title}}{{^Title}}Unknown game{{/Title}}</h1>
+<p class="players">{{#White}}{{White}}{{/White}}{{^White}}Anonymous{{/White}} - {{#Black}}{{Black}}{{/Black}}{{^Black}}Anonymous{{/Black}}{{#Site}}, {{Site}}{{/Site}}{{#Date}}, {{Date}}{{/Date}}</p>
+
+<p class="move">{{Last_Move}}</p>
+
+<div class="chessboard">
+  <table id="chessboard">
+    <table id="chessboard">
+  <tr>
+    <td id="a8"></td>
+    <td id="b8"></td>
+    <td id="c8"></td>
+    <td id="d8"></td>
+    <td id="e8"></td>
+    <td id="f8"></td>
+    <td id="g8"></td>
+    <td id="h8"></td>
+  </tr>
+  <tr>
+    <td id="a7"></td>
+    <td id="b7"></td>
+    <td id="c7"></td>
+    <td id="d7"></td>
+    <td id="e7"></td>
+    <td id="f7"></td>
+    <td id="g7"></td>
+    <td id="h7"></td>
+  </tr>
+  <tr>
+    <td id="a6"></td>
+    <td id="b6"></td>
+    <td id="c6"></td>
+    <td id="d6"></td>
+    <td id="e6"></td>
+    <td id="f6"></td>
+    <td id="g6"></td>
+    <td id="h6"></td>
+  </tr>
+  <tr>
+    <td id="a5"></td>
+    <td id="b5"></td>
+    <td id="c5"></td>
+    <td id="d5"></td>
+    <td id="e5"></td>
+    <td id="f5"></td>
+    <td id="g5"></td>
+    <td id="h5"></td>
+  </tr>
+  <tr>
+    <td id="a4"></td>
+    <td id="b4"></td>
+    <td id="c4"></td>
+    <td id="d4"></td>
+    <td id="e4"></td>
+    <td id="f4"></td>
+    <td id="g4"></td>
+    <td id="h4"></td>
+  </tr>
+  <tr>
+    <td id="a3"></td>
+    <td id="b3"></td>
+    <td id="c3"></td>
+    <td id="d3"></td>
+    <td id="e3"></td>
+    <td id="f3"></td>
+    <td id="g3"></td>
+    <td id="h3"></td>
+  </tr>
+  <tr>
+    <td id="a2"></td>
+    <td id="b2"></td>
+    <td id="c2"></td>
+    <td id="d2"></td>
+    <td id="e2"></td>
+    <td id="f2"></td>
+    <td id="g2"></td>
+    <td id="h2"></td>
+  </tr>
+  <tr>
+    <td id="a1"></td>
+    <td id="b1"></td>
+    <td id="c1"></td>
+    <td id="d1"></td>
+    <td id="e1"></td>
+    <td id="f1"></td>
+    <td id="g1"></td>
+    <td id="h1"></td>
+  </tr>
+</table>
+  </table>
+</div>
+
+<p class="tomove move">to move</p>
+
+<script>
+function setupChessboard(fen) {
+    // Default to starting position if no FEN is provided
+    fen = fen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+    
+    const pieceMap = {
+        'p': '_pdt45.svg', 'P': '_plt45.svg',
+        'n': '_ndt45.svg', 'N': '_nlt45.svg',
+        'b': '_bdt45.svg', 'B': '_blt45.svg',
+        'r': '_rdt45.svg', 'R': '_rlt45.svg',
+        'q': '_qdt45.svg', 'Q': '_qlt45.svg',
+        'k': '_kdt45.svg', 'K': '_klt45.svg'
+    };
+
+    const board = fen.split(' ')[0]; // Get the piece placement part of FEN
+    const rows = board.split('/');
+    
+    rows.forEach((row, rowIndex) => {
+        let colIndex = 0;
+        for (let char of row) {
+            if (isNaN(char)) {
+                // It's a piece
+                const square = document.getElementById(String.fromCharCode(97 + colIndex) + (8 - rowIndex));
+                const img = document.createElement('img');
+                img.src = pieceMap[char];
+                img.alt = char;
+                img.style.position = 'absolute';
+								 img.style.transform = 'translateX(-50%)';
+                img.style.width = '100%';
+                img.style.height = '100%';
+                square.appendChild(img);
+                colIndex++;
+            } else {
+                // It's a number, skip these many columns
+                colIndex += parseInt(char);
+            }
+        }
+    });
+}
+
+// Usage:
+setupChessboard('{{Current_Position}}');
+</script>
+
+<script>
+function highlightLastMove(moveCoordinate) {
+    // Remove any existing highlights
+    document.querySelectorAll('.highlight-light, .highlight-dark').forEach(el => {
+        el.classList.remove('highlight-light', 'highlight-dark');
+    });
+
+    if (!moveCoordinate) return; // Exit if no move coordinate is provided
+
+    // Split the coordinate notation into 'from' and 'to' squares
+    const [fromSquare, toSquare] = moveCoordinate.match(/.{2}/g) || [];
+
+    // Function to highlight a single square
+    function highlightSquare(squareId) {
+        const square = document.getElementById(squareId);
+        if (square) {
+            const isLightSquare = (square.offsetTop + square.offsetLeft) % 2 === 1;
+            square.classList.add(isLightSquare ? 'highlight-light' : 'highlight-dark');
+        }
+    }
+
+    // Highlight both squares
+    highlightSquare(fromSquare);
+    highlightSquare(toSquare);
+}
+
+// Usage:
+highlightLastMove('{{Last_Move_Coordinate}}');
+</script>
+
+<script>
+    function updateMoveIndicator() {
+        const fen = "{{Current_Position}}";
+        const activeColor = fen.split(' ')[1];
+        const moveElement = document.querySelector('.tomove');
+        
+        if (moveElement) {
+            // Remove both classes first to ensure clean state
+            moveElement.classList.remove('white', 'black');
+            // Add appropriate class based on FEN
+            moveElement.classList.add(activeColor === 'w' ? 'white' : 'black');
+        }
+    }
+    
+    // Run when content loads
+    updateMoveIndicator();
+</script>

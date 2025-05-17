@@ -1,0 +1,75 @@
+.card {
+    font-family: arial;
+    font-size: 20px;
+    text-align: center;
+    color: black;
+    background-color: white;
+}
+
+h1 {
+		font-family: helvetica;
+		font-size: 20px;
+		position: relative;
+		width: max-content;
+		left: 50%;
+		translate: -50%;
+}
+
+h1:after {
+		content: '';
+		background-color: black;
+		height: 4px;
+		width: 100%;
+		position: absolute;
+		bottom: -5px;
+		left:0;
+}
+
+.nightMode h1:after {
+		background-color: white;
+}
+
+.players {
+    color: grey;
+    font-style: italic;
+    font-size: 16px;
+}
+
+#chessboard {
+  border-collapse: collapse;
+  width: clamp(200px, 90vw, 450px); /*minimum, percentage, maximum*/
+  margin: 0 auto;
+}
+
+#chessboard td {
+  width: 12.5%;
+  height: 0;
+  padding-bottom: 12.5%; /* Creates square cells */
+  position: relative; /* For absolute positioning of pieces */
+}
+
+#chessboard tr:nth-child(odd) td:nth-child(even),
+#chessboard tr:nth-child(even) td:nth-child(odd) {
+  background-color: var(--light-square-color, #f0d9b5);
+}
+
+#chessboard tr:nth-child(odd) td:nth-child(odd),
+#chessboard tr:nth-child(even) td:nth-child(even) {
+  background-color: var(--dark-square-color, #b58863);
+}
+
+.highlight-light {
+    background-color: #eb7863 !important;
+}
+
+.highlight-dark {
+    background-color: #e16954 !important;
+}
+
+.tomove.white:before {
+    content: "White ";
+}
+
+.tomove.black:before {
+    content: "Black ";
+}

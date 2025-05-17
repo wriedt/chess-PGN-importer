@@ -1,0 +1,128 @@
+<!-- Front Template -->
+<h1>{{Title}}</h1>
+<p class="sub-h1">{{White}} - {{Black}}, {{Site}}, {{Date}}</p>
+<p class="move">{{Last_Move}}</p>
+<div id="chessboard" class="chessboard"></div>
+<p class="move">{{#Current_Position}}{{#regexreplace::.*\s(\w)\s.*::\1::}} to move{{/regexreplace}}{{/Current_Position}}</p>
+
+<script>
+function renderChessboard(fen, lastMove) {
+    const board = document.getElementById('chessboard');
+    const fenParts = fen.split(' ');
+    const pieces = fenParts[0].split('/');
+    
+    let html = '';
+    for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+            const squareColor = (row + col) % 2 === 0 ? 'light-square' : 'dark-square';
+            const square = String.fromCharCode(97 + col) + (8 - row);
+            
+            html += `<div class="square ${squareColor}" id="${square}">`;
+            
+            if (pieces[row][col] !== ' ') {
+                const pieceColor = pieces[row][col] === pieces[row][col].toUpperCase() ? 'l' : 'd';
+                const pieceName = pieces[row][col].toLowerCase();
+                html += `<img src="_${pieceName}${pieceColor}t45.svg" class="piece">`;
+            }
+            
+            html += '</div>';
+        }
+    }
+    
+    board.innerHTML = html;
+    
+    // Highlight last move
+    if (lastMove) {
+        const [from, to] = lastMove.split('-');
+        document.getElementById(from).classList.add('highlight');
+        document.getElementById(to).classList.add('highlight');
+    }
+}
+
+renderChessboard('{{Current_Position}}', '{{Last_Move_Coordinate}}');
+</script>
+
+<!-- Back Template -->
+{{FrontSide}}
+<hr id="answer">
+<p class="move">{{Next_Move}}</p>
+{{#Has_Comment}}
+<p class="comment">{{Next_Move_Comment}}</p>
+{{/Has_Comment}}
+{{#Has_Variation}}
+<p class="variation">{{Alternative_Variation}}</p>
+{{/Has_Variation}}
+<a href="https://lichess.org/analysis/{{Current_Position}}" class="analysis">Open analysis board</a>
+
+<script>
+renderChessboard('{{Next_Move_Position}}', '{{Next_Move_Coordinate}}');
+</script>
+
+<!-- Styling -->
+<style>
+.card {
+    font-family: arial;
+    font-size: 20px;
+    text-align: center;
+    color: black;
+    background-color: white;
+}
+
+.chessboard {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    width: 400px;
+    height: 400px;
+    margin: 20px auto;
+}
+
+.square {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.light-square {
+    background-color: #ffcf9f;
+}
+
+.dark-square {
+    background-color: #d28c45;
+}
+
+.highlight {
+    background-color: #eb7863;
+}
+
+.dark-square.highlight {
+    background-color: #e16954;
+}
+
+.piece {
+    width: 90%;
+    height: 90%;
+}
+
+.move {
+    font-weight: bold;
+    font-size: 24px;
+}
+
+.comment {
+    font-style: italic;
+}
+
+.variation {
+    color: #666;
+}
+
+.analysis {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+</style>
